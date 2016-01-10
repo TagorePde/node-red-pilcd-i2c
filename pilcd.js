@@ -27,11 +27,6 @@ module.exports = function(RED) {
         throw "Info : Ignoring Raspberry Pi specific node.";
     }
 
-    if (!fs.existsSync("/usr/share/doc/python-rpi.gpio")) {
-        util.log("[rpi-lcd] Info : Can't find Pi RPi.GPIO python library.");
-        throw "Warning : Can't find Pi RPi.GPIO python library.";
-    }
-
     if (!(1 & parseInt ((fs.statSync(gpioCommand).mode & parseInt ("777", 8)).toString (8)[0]))) {
         util.log("[rpi-lcd] Error : " + gpioCommand + " needs to be executable.");
         throw "Error : " + gpioCommand + " must to be executable.";
@@ -39,7 +34,9 @@ module.exports = function(RED) {
 
     function PiLcdNode(n) {
         RED.nodes.createNode(this, n);
-        this.pins = n.pins;
+        this.address = n.address;
+        this.cols = n.cols;
+        this.rows = n.rows;
         var node = this;
 
         function inputlistener(msg) {
@@ -49,10 +46,10 @@ module.exports = function(RED) {
             else { node.warn("Command not running"); }
         }
 
-        if (node.pins !== undefined) {
-            node.child = spawn(gpioCommand, [node.pins]);
+        if (node.address !== undefined && node.cols !== undefined && node.rows !== undefined) {
+            node.child = spawn(gpioCommand, [node.address, node.cols, node.pins]);
             node.running = true;
-            if (RED.settings.verbose) { node.log("pin: " + node.pins + " :"); }
+            if (RED.settings.verbose) { node.log("address: " + node.address + " (" + node.cols + "x" + node.rows + ") :"); }
             node.on("input", inputlistener);
 
             node.child.stdout.on('data', function(data) {
@@ -77,7 +74,7 @@ module.exports = function(RED) {
 
         }
         else {
-            node.error("Invalid GPIO pins: " + node.pin);
+            node.error("Missing or invalid data");
         }
 
         var wfi = function(done) {
@@ -99,5 +96,5 @@ module.exports = function(RED) {
         });
 
     }
-    RED.nodes.registerType("rpi-lcd", PiLcdNode);
+    RED.nodes.registerType("rpi-lcd-i2c", PiLcdNode);
 }

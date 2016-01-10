@@ -1,23 +1,22 @@
 {
-    "name"          : "node-red-node-pilcd",
-    "version"       : "0.0.2",
-    "description"   : "A Node-RED node for Raspberry Pi to write to HD44780 style LCD panels.",
+    "name"          : "node-red-node-pilcd-i2c",
+    "version"       : "0.0.1",
+    "description"   : "A Node-RED node for Raspberry Pi to write to I2C controlled LCD Panels",
     "dependencies"  : {
     },
     "repository" : {
         "type":"git",
-        "url":"https://github.com/node-red/node-red-nodes/tree/master/hardware/PiLcd"
+        "url":"https://github.com/Akwaryoum/node-red-pilcd-i2c"
     },
     "license": "Apache-2.0",
-    "keywords": [ "node-red", "lcd", "HD44780" ],
+    "keywords": [ "node-red", "lcd", "i2c" ],
     "node-red"      : {
         "nodes"     : {
-            "rpi-lcd": "pilcd.js"
+            "rpi-lcd-i2c": "pilcd.js"
         }
     },
-    "author": {
-        "name": "Dave Conway-Jones",
-        "email": "ceejay@vnet.ibm.com",
-        "url": "http://nodered.org"
+    "contributors": {
+        "Dave Conway-Jones <ceejay@vnet.ibm.com> (http://nodered.org)",
+	"Vincent P <admin@akwaryoum.fr> (https://akwaryoum.fr)"
     }
 }

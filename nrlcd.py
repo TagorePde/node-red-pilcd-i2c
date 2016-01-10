@@ -6,135 +6,39 @@
 # Original Author : Matt Hawkins
 # Site   : http://www.raspberrypi-spy.co.uk
 # Modified to use PINS not BCM : Dave Conway-Jones
+# Modified to use RPLCD with I2c by Vincent P (https://akwaryoum.fr)
 
 #import
-import RPi.GPIO as GPIO
-import time
-import sys
-import os, select
+# -*- coding: utf-8 -*-
+from __future__ import print_function, division, absolute_import, unicode_literals
 
-# Turn off warnings if you run it a second time...
-GPIO.setwarnings(False)
+import RPIO, sys, select
 
-# Define initial Pins to LCD mapping
-LCD_RS = 26
-LCD_E  = 24
-LCD_D4 = 22
-LCD_D5 = 18
-LCD_D6 = 16
-LCD_D7 = 12
+from RPLCD.i2c import CharLCD
+from RPLCD import Alignment, CursorMode, ShiftMode
+from RPLCD import cursor, cleared
 
-# Define some device constants
-LCD_WIDTH = 20    # Maximum characters per line
-LCD_CHR = True
-LCD_CMD = False
+try:
+    input = raw_input
+except NameError:
+    pass
 
-LCD_LINE_1 = 0x80 # LCD RAM address for the 1st line
-LCD_LINE_2 = 0xC0 # LCD RAM address for the 2nd line
-LCD_LINE_3 = 0xA0 # LCD RAM address for the 3rd line
-LCD_LINE_4 = 0xE0 # LCD RAM address for the 4th line
-
-# Timing constants
-E_PULSE = 0.00005
-E_DELAY = 0.00005
-
-def lcd_init():
-  # Initialise display
-  lcd_byte(0x33,LCD_CMD)
-  lcd_byte(0x32,LCD_CMD)
-  lcd_byte(0x28,LCD_CMD)
-  lcd_byte(0x0C,LCD_CMD)
-  lcd_byte(0x06,LCD_CMD)
-  lcd_byte(0x01,LCD_CMD)
-
-def lcd_string(message):
-  # Send string to display
-  message = message.ljust(LCD_WIDTH," ")
-  for i in range(LCD_WIDTH):
-    lcd_byte(ord(message[i]),LCD_CHR)
-
-def lcd_byte(bits, mode):
-  # Send byte to data pins
-  # bits = data
-  # mode = True  for character
-  #        False for command
-  GPIO.output(LCD_RS, mode) # RS
-
-  # High bits
-  GPIO.output(LCD_D4, False)
-  GPIO.output(LCD_D5, False)
-  GPIO.output(LCD_D6, False)
-  GPIO.output(LCD_D7, False)
-  if bits&0x10==0x10:
-    GPIO.output(LCD_D4, True)
-  if bits&0x20==0x20:
-    GPIO.output(LCD_D5, True)
-  if bits&0x40==0x40:
-    GPIO.output(LCD_D6, True)
-  if bits&0x80==0x80:
-    GPIO.output(LCD_D7, True)
-
-  # Toggle 'Enable' pin
-  time.sleep(E_DELAY)
-  GPIO.output(LCD_E, True)
-  time.sleep(E_PULSE)
-  GPIO.output(LCD_E, False)
-  time.sleep(E_DELAY)
-
-  # Low bits
-  GPIO.output(LCD_D4, False)
-  GPIO.output(LCD_D5, False)
-  GPIO.output(LCD_D6, False)
-  GPIO.output(LCD_D7, False)
-  if bits&0x01==0x01:
-    GPIO.output(LCD_D4, True)
-  if bits&0x02==0x02:
-    GPIO.output(LCD_D5, True)
-  if bits&0x04==0x04:
-    GPIO.output(LCD_D6, True)
-  if bits&0x08==0x08:
-    GPIO.output(LCD_D7, True)
-
-  # Toggle 'Enable' pin
-  time.sleep(E_DELAY)
-  GPIO.output(LCD_E, True)
-  time.sleep(E_PULSE)
-  GPIO.output(LCD_E, False)
-  time.sleep(E_DELAY)
+RPIO.setwarnings(False)
 
 # Main program loop
 if len(sys.argv) > 1:
-    pins = sys.argv[1].lower().split(',')
-    if len(pins) != 6:
-        print "Bad number of pins supplied"
-        print "    "+pins
-        sys.exit(0)
+    address = int(sys.argv[1], 0)
+    cols = int(sys.argv[2])
+    rows = int(sys.argv[3])
 
-    LCD_RS = int(pins[0])
-    LCD_E  = int(pins[1])
-    LCD_D4 = int(pins[2])
-    LCD_D5 = int(pins[3])
-    LCD_D6 = int(pins[4])
-    LCD_D7 = int(pins[5])
-
-    GPIO.setmode(GPIO.BOARD)     # Use GPIO BOARD numbers
-    GPIO.setup(LCD_RS, GPIO.OUT) # RS
-    GPIO.setup(LCD_E,  GPIO.OUT) # E
-    GPIO.setup(LCD_D4, GPIO.OUT) # DB4
-    GPIO.setup(LCD_D5, GPIO.OUT) # DB5
-    GPIO.setup(LCD_D6, GPIO.OUT) # DB6
-    GPIO.setup(LCD_D7, GPIO.OUT) # DB7
+    print ("Config: " + str(format(address, '#04x')) + " (" + str(cols) + ","+ str(rows) + ")")
 
     # Initialise display
-    lcd_init()
+    lcd = CharLCD(address, cols=cols, rows=rows)
 
     # Send some test
-    lcd_byte(LCD_LINE_1, LCD_CMD)
-    lcd_string("Node-RED")
-    lcd_byte(LCD_LINE_2, LCD_CMD)
-    lcd_string("LCD online")
-    time.sleep(2) # 2 second delay
-    lcd_byte(0x01,LCD_CMD)
+    lcd.write_string("Node-RED\n")
+    lcd.write_string("LCD online")
 
     # Flush stdin so we start clean
     while len(select.select([sys.stdin.fileno()], [], [], 0.0)[0])>0:
@@ -145,40 +49,30 @@ if len(sys.argv) > 1:
             data = raw_input()
             data = data.rstrip("\r\n\t")
             if data == "c:lose": # cleanup and exit
-                GPIO.cleanup(LCD_RS)
-                GPIO.cleanup(LCD_E)
-                GPIO.cleanup(LCD_D4)
-                GPIO.cleanup(LCD_D5)
-                GPIO.cleanup(LCD_D6)
-                GPIO.cleanup(LCD_D7)
+                lcd.close()
                 sys.exit(0)
             elif data == "clr:": # clear the display
-                lcd_init()
+                lcd.clear()
             elif data.startswith("1:"):
-                lcd_byte(LCD_LINE_1, LCD_CMD)
-                lcd_string(data[2:])
+                lcd.cursor_pos = (0,0)
+                lcd.write_string(data[2:])
             elif data.startswith("2:"):
-                lcd_byte(LCD_LINE_2, LCD_CMD)
-                lcd_string(data[2:])
+                lcd.cursor_pos = (1,0)
+                lcd.write_string(data[2:])
             elif data.startswith("3:"):
-                lcd_byte(LCD_LINE_3, LCD_CMD)
-                lcd_string(data[2:])
+                lcd.cursor_pos = (2,0)
+                lcd.write_string(data[2:])
             elif data.startswith("4:"):
-                lcd_byte(LCD_LINE_4, LCD_CMD)
-                lcd_string(data[2:])
+                lcd.cursor_pos = (3,0)
+                lcd.write_string(data[2:])
             else:               # default to line 1
-                lcd_byte(LCD_LINE_1, LCD_CMD)
-                lcd_string(data)
+                lcd.cursor_pos = (0,0)
+                lcd.write_string(data)
         except EOFError:        # hopefully always caused by us sigint'ing the program
-            GPIO.cleanup(LCD_RS)
-            GPIO.cleanup(LCD_E)
-            GPIO.cleanup(LCD_D4)
-            GPIO.cleanup(LCD_D5)
-            GPIO.cleanup(LCD_D6)
-            GPIO.cleanup(LCD_D7)
+            lcd.close()
             sys.exit(0)
 
 else:
-    print "Bad params"
-    print "    sudo nrlcd.py RS,E,D4,D5,D6,D7"
+    print ("Bad params")
+    print ("    sudo nrlcd.py 0x27 16 2")
     sys.exit(0)

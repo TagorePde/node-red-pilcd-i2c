@@ -1,0 +1,2 @@
+RPIO==0.10.0
+flufl.enum==4.0

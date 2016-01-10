@@ -16,34 +16,43 @@
 
 <script type="text/x-red" data-template-name="rpi-lcd">
     <div class="form-row">
-        <label for="node-input-pins"><i class="fa fa-circle"></i> Pins</label>
-        <input type="text" id="node-input-pins" placeholder="RS,E,D4,D5,D6,D7">
+        <label for="node-input-address"><i class="fa fa-compass"></i> Address</label>
+        <input type="text" id="node-input-address" placeholder="0x27">
+    </div>
+    </br>
+    <div class="form-row">
+        <label for="node-input-rows"><i class="fa fa-text-height"></i> Rows</label>
+        <input type="text" id="node-input-rows" placeholder="2">
+    </div>
+    </br>
+    <div class="form-row">
+        <label for="node-input-cols"><i class="fa fa-text-width"></i> Cols</label>
+        <input type="text" id="node-input-cols" placeholder="16">
     </div>
     <br/>
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
-    <div class="form-tips"><b>Tip</b>: Pins MUST be a comma separated list of the 6 GPIO
-    connector pin numbers that are connected to the RS, E, D4, D5, D6 and D7 pins of the LCD.</div>
 </script>
 
-<script type="text/x-red" data-help-name="rpi-lcd">
-    <p>Raspberry Pi output to a HD44780 style LCD. Usually 1, 2, or 4 lines of characters.</p>
+<script type="text/x-red" data-help-name="rpi-lcd-i2c">
+    <p>Raspberry Pi output to a I2C LCD.</p>
     <p>Expects a <b>msg.payload</b> with a string in it.</p>
     <p>Strings for the second line of the display must start <b>2:</b> - the third start <b>3:</b> - and the fourth <b>4:</b></p>
     <p>To clear the display send the string <b>clr:</b></p>
     <p>It is up to you to manage string lengths to suit the display.</p>
-    <p>Requires the RPi.GPIO python library version 0.5.8 (or better) in order to work.</p>
-    <p><b>Note:</b> we are using the actual physical pin numbers on connector P1 as they are easier to locate.</p>
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('rpi-lcd',{
+    RED.nodes.registerType('rpi-lcd-i2c',{
         category: 'Raspberry Pi',
-        color:"#c6dbef",
+        color:"#7FDA68",
         defaults: {
             name: { value:"" },
+            address: { value:"", required:true, validate:RED.validators.regex(/^0x\d{2}$/) },
+            rows: { value="", required=true, validate:RED.validators.number() },
+            cols: { value="", required=true, validate:RED.validators.number() },
             pins: { value:"", required:true, validate:RED.validators.regex(/^\d+,\d+,\d+,\d+,\d+,\d+$/) }
         },
         inputs:1,
@@ -51,7 +60,7 @@
         align:"right",
         icon:"rpi.png",
         label:function() {
-            return this.name||"Pi LCD";
+            return this.name||"Pi I2C LCD";
         },
         labelStyle:function() {
             return this.name?"node_label_italic":"";
