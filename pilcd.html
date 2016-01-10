@@ -52,8 +52,7 @@
             name: { value:"" },
             address: { value:"", required:true, validate:RED.validators.regex(/^0x\d{2}$/) },
             rows: { value:"", required:true, validate:RED.validators.number() },
-            cols: { value:"", required:true, validate:RED.validators.number() },
-            pins: { value:"", required:true, validate:RED.validators.regex(/^\d+,\d+,\d+,\d+,\d+,\d+$/) }
+            cols: { value:"", required:true, validate:RED.validators.number() }
         },
         inputs:1,
         outputs:0,
