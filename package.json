@@ -15,8 +15,16 @@
             "rpi-lcd-i2c": "pilcd.js"
         }
     },
-    "contributors": {
-        "Dave Conway-Jones <ceejay@vnet.ibm.com> (http://nodered.org)",
-	"Vincent P <admin@akwaryoum.fr> (https://akwaryoum.fr)"
-    }
+    "contributors": [
+        {
+            "name": "Dave Conway-Jones",
+            "email": "ceejay@vnet.ibm.com",
+            "url": "http://nodered.org"
+	},
+	{
+            "name": "Vincent P",
+            "email": "admin@akwaryoum.fr",
+            "url": "https://akwaryoum.fr"
+	}
+    ]
 }
