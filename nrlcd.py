@@ -37,7 +37,8 @@ if len(sys.argv) > 1:
     lcd = CharLCD(address, cols=cols, rows=rows)
 
     # Send some test
-    lcd.write_string("Node-RED\n")
+    lcd.write_string("Node-RED")
+    lcd.cursor_pos = (1,0)
     lcd.write_string("LCD online")
 
     # Flush stdin so we start clean
