@@ -1,30 +1,44 @@
 {
-    "name"          : "node-red-node-pilcd-i2c",
-    "version"       : "0.0.1",
-    "description"   : "A Node-RED node for Raspberry Pi to write to I2C controlled LCD Panels",
-    "dependencies"  : {
+  "name": "node-red-node-pilcd-i2c",
+  "version": "0.0.1",
+  "description": "A Node-RED node for Raspberry Pi to write to I2C controlled LCD Panels",
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Akwaryoum/node-red-pilcd-i2c.git"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "node-red",
+    "lcd",
+    "i2c"
+  ],
+  "node-red": {
+    "nodes": {
+      "rpi-lcd-i2c": "pilcd.js"
+    }
+  },
+  "contributors": [
+    {
+      "name": "Dave Conway-Jones",
+      "email": "ceejay@vnet.ibm.com",
+      "url": "http://nodered.org"
     },
-    "repository" : {
-        "type":"git",
-        "url":"https://github.com/Akwaryoum/node-red-pilcd-i2c"
-    },
-    "license": "Apache-2.0",
-    "keywords": [ "node-red", "lcd", "i2c" ],
-    "node-red"      : {
-        "nodes"     : {
-            "rpi-lcd-i2c": "pilcd.js"
-        }
-    },
-    "contributors": [
-        {
-            "name": "Dave Conway-Jones",
-            "email": "ceejay@vnet.ibm.com",
-            "url": "http://nodered.org"
-	},
-	{
-            "name": "Vincent P",
-            "email": "admin@akwaryoum.fr",
-            "url": "https://akwaryoum.fr"
-	}
-    ]
+    {
+      "name": "Vincent P",
+      "email": "admin@akwaryoum.fr",
+      "url": "https://akwaryoum.fr"
+    }
+  ],
+  "gitHead": "92f676928ee423ce12fcb77d4e7b0920f31be7e5",
+  "readme": "node-red-node-pilcd-i2c\n=======================\n\nThis is a fork of the initial <a href=\"https://github.com/node-red/node-red-nodes/tree/master/hardware/PiLcd\" target=\"_new\">node-red-node-pilcd</a>, modified to add I2C support. \n\nRequires <a href=\"https://github.com/metachris/RPIO\">RPLCD</a>\n",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/Akwaryoum/node-red-pilcd-i2c/issues"
+  },
+  "homepage": "https://github.com/Akwaryoum/node-red-pilcd-i2c#readme",
+  "_id": "node-red-node-pilcd-i2c@0.0.1",
+  "_shasum": "4f1eb0b3e7346cc590605cfd76b840839fdb1e0c",
+  "_from": "git+https://github.com/Akwaryoum/node-red-pilcd-i2c.git",
+  "_resolved": "git+https://github.com/Akwaryoum/node-red-pilcd-i2c.git#92f676928ee423ce12fcb77d4e7b0920f31be7e5"
 }

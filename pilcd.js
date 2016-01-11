@@ -20,7 +20,7 @@ module.exports = function(RED) {
     var spawn = require('child_process').spawn;
     var fs = require('fs');
 
-    var gpioCommand = __dirname + '/nrlcd.py';
+    var gpioCommand = __dirname + '/nrlcd';
 
     if (!fs.existsSync("/dev/ttyAMA0")) { // unlikely if not on a Pi
         //util.log("Info : Ignoring Raspberry Pi specific node.");
@@ -47,8 +47,9 @@ module.exports = function(RED) {
         }
 
         if (node.address !== undefined && node.cols !== undefined && node.rows !== undefined) {
-            node.child = spawn(gpioCommand, [node.address, node.cols, node.pins]);
+            node.child = spawn(gpioCommand, [node.address, node.cols, node.rows]);
             node.running = true;
+
             if (RED.settings.verbose) { node.log("address: " + node.address + " (" + node.cols + "x" + node.rows + ") :"); }
             node.on("input", inputlistener);
 
@@ -71,6 +72,12 @@ module.exports = function(RED) {
                 else if (err.errno === "EACCES") { node.warn('Command not executable'); }
                 else { node.log('error: ' + err); }
             });
+
+            node.child.on('exit', function(code, signal) {
+                if (RED.settings.verbose) { node.log("exi: " + code + " :"); }
+                node.child = null;
+                node.running = false;
+            })
 
         }
         else {
